@@ -1,6 +1,6 @@
 {
     "name": "brunojk/laravel-origin-redis-translation",
-    "description": "Redis Translation adapter for Laravel with origins contexts",
+    "description": "Redis Translation adapter for Laravel",
     "authors": [
         {
             "name": "brunojk"
@@ -11,13 +11,17 @@
         "psr-4": { "brunojk\\LaravelOriginRedisTranslation\\": "src/" }
     },
     "require": {
-        "php": ">=5.5",
-        "laravel/framework": "^5.2",
+        "php": ">=5.5.9",
+        "illuminate/container": "5.2.*",
+        "illuminate/contracts": "5.2.*",
+        "illuminate/database": "5.2.*",
+        "illuminate/support": "5.2.*",
+        "illuminate/redis": "5.2.*",
         "predis/predis": "^1.1"
     },
     "require-dev": {
         "psr/log": "1.0.0",
-        "orchestra/testbench": "^3.0",
+        "orchestra/testbench": "3.2.*",
         "codeclimate/php-test-reporter": "0.1.*@dev",
         "mockery/mockery": "0.9.*@dev",
         "phpunit/phpunit": "^5.4.6"
