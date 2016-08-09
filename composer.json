@@ -1,6 +1,6 @@
 {
-    "name": "brunojk/laravel-sbredis-translation",
-    "description": "Redis Translation adapter for Laravel",
+    "name": "brunojk/laravel-origin-redis-translation",
+    "description": "Redis Translation adapter for Laravel with origins contexts",
     "authors": [
         {
             "name": "brunojk"
@@ -8,7 +8,7 @@
     ],
     "license": "MIT",
     "autoload": {
-        "psr-4": { "brunojk\\LaravelSBRedisTranslation\\": "src/" }
+        "psr-4": { "brunojk\\LaravelOriginRedisTranslation\\": "src/" }
     },
     "require": {
         "php": ">=5.5",

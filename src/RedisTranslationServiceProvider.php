@@ -1,6 +1,6 @@
 <?php
 
-namespace brunojk\LaravelSBRedisTranslation;
+namespace brunojk\LaravelOriginRedisTranslation;
 
 use Illuminate\Support\ServiceProvider;
 
