@@ -48,29 +48,6 @@ class RedisTranslator implements TranslatorInterface
     }
 
     /**
-     * Determine if a translation exists for a given locale.
-     *
-     * @param  string  $key
-     * @param  string|null  $locale
-     * @return bool
-     */
-    public function hasForLocale($key, $locale = null) {
-        return $this->has($key, $locale, false);
-    }
-
-    /**
-     * Determine if a translation exists.
-     *
-     * @param  string  $key
-     * @param  string|null  $locale
-     * @param  bool  $fallback
-     * @return bool
-     */
-    public function has($key, $locale = null, $fallback = true) {
-        return $this->get($key, [], $locale, $fallback) !== $key;
-    }
-
-    /**
      * @param null $lang
      * @return string
      */
@@ -78,7 +55,7 @@ class RedisTranslator implements TranslatorInterface
         return $lang ?: app()->getLocale();
     }
 
-    protected function resolvedKeys(&$id, &$context = null, &$lang = null) {
+    protected function resolveKeys(&$id, &$context = null, &$lang = null) {
         $keys = explode('.', $id);
         $id = array_pop($keys); //last element, the key
         $context = count($keys) ? array_pop($keys) : $context;
@@ -90,8 +67,8 @@ class RedisTranslator implements TranslatorInterface
         return [$keyapp, $keyplt];
     }
 
-    public function get($id, array $parameters = [], $context = null, $lang = null) {
-        $keys = $this->resolvedKeys($id, $context, $lang);
+    public function get($id, array $parameters = [], $context = null, $lang = null, $fallback = true) {
+        $keys = $this->resolveKeys($id, $context, $lang);
         $res = null;
 
         foreach( $keys as $key ) {
@@ -99,7 +76,7 @@ class RedisTranslator implements TranslatorInterface
             if( !empty($res) ) break;
         }
 
-        if( empty($res) && $lang != $this->fallback )
+        if( $fallback && empty($res) && $lang != $this->fallback )
             return $this->get($id, $parameters, $context, $this->fallback);
 
         $res = !empty($res) ?
