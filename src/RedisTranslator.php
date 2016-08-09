@@ -69,7 +69,7 @@ class RedisTranslator implements TranslatorInterface
      * @return string
      */
     protected function resolveLang($lang = null) {
-        return $lang ?: app()->getLocale();
+        return $lang ?: $this->locale;
     }
 
     protected function resolveKeys(&$id, &$context = null, &$lang = null) {
