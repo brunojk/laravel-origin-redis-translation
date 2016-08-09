@@ -1,0 +1,26 @@
+{
+    "name": "brunojk/laravel-sbredis-translation",
+    "description": "Redis Translation adapter for Laravel",
+    "authors": [
+        {
+            "name": "brunojk"
+        }
+    ],
+    "license": "MIT",
+    "autoload": {
+        "psr-4": { "brunojk\\LaravelSBRedisTranslation\\": "src/" }
+    },
+    "require": {
+        "php": ">=5.5",
+        "laravel/framework": "^5.2",
+        "predis/predis": "^1.1"
+    },
+    "require-dev": {
+        "psr/log": "1.0.0",
+        "orchestra/testbench": "^3.0",
+        "codeclimate/php-test-reporter": "0.1.*@dev",
+        "mockery/mockery": "0.9.*@dev",
+        "phpunit/phpunit": "^5.4.6"
+    },
+    "minimum-stability": "dev"
+}
