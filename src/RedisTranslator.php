@@ -10,6 +10,20 @@ use Symfony\Component\Translation\TranslatorInterface;
 class RedisTranslator implements TranslatorInterface
 {
     /**
+     * The redis connection name.
+     *
+     * @var string
+     */
+    protected $rediscon;
+
+    /**
+     * The redis connection database.
+     *
+     * @var string
+     */
+    protected $redis = null;
+
+    /**
      * The default locale being used by the translator.
      *
      * @var string
@@ -34,17 +48,20 @@ class RedisTranslator implements TranslatorInterface
      * Create a new translator instance.
      *
      * @param  string $locale
+     * @param string $rediscon
      */
-    public function __construct($locale)
+    public function __construct($locale, $rediscon = 'default')
     {
         $this->locale = $locale;
+        $this->rediscon = $rediscon;
     }
 
     /**
      * @return Database
      */
     protected function redis() {
-        return app()->make('redis');
+        $this->redis = $this->redis ?: app()->make('redis')->connection($this->rediscon);
+        return $this->redis;
     }
 
     /**

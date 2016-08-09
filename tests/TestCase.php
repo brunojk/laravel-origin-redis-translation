@@ -40,6 +40,6 @@ class TestCase extends \Orchestra\Testbench\TestCase
         $app['config']->set('app.locale', $appconfig['locale']);
         $app['config']->set('app.fallback_locale', $appconfig['fallback_locale']);
 
-        $this->redis = app()->make('redis');
+        $this->redis = app()->make('redis')->connection(isset($dbconfig['redis']['translations']) ? 'translations' : 'default');
     }
 }

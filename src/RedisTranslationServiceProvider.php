@@ -27,7 +27,9 @@ class RedisTranslationServiceProvider extends ServiceProvider
             $locale = $app['config']['app.locale'];
             $fblocale = $app['config']['app.fallback_locale'];
 
-            $trans = new RedisTranslator($locale);
+            $rediscon = isset($app['config']['database.redis']['translations']);
+
+            $trans = new RedisTranslator($locale, $rediscon ? 'translations' : null);
             $trans->setFallback($fblocale);
 
             return $trans;
