@@ -93,8 +93,12 @@ class RedisTranslator implements TranslatorInterface
             if( !empty($res) ) break;
         }
 
-        if( $fallback && empty($res) && $lang != $this->fallback )
+        if( $fallback && empty($res) && $lang != $this->fallback ) {
+            if( str_contains($lang, '-') )
+                return $this->get($id, $parameters, $context, explode('-', $lang)[0]);
+
             return $this->get($id, $parameters, $context, $this->fallback);
+        }
 
         $res = !empty($res) ?
             $this->makeReplacements($res, $parameters) :

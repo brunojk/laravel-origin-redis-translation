@@ -11,6 +11,31 @@ class AllTest extends TestCase
         $this->assertNotNull($this->redis);
     }
 
+    public function testCountryLocale() {
+        $this->redis->set('app.en.default.hello_world', 'Hello World');
+        $this->redis->set('app.en-us.default.hello_world', 'Hello World us');
+
+        $this->redis->set('app.pt.default.hello_world', 'Olá mundo');
+        $this->redis->set('app.pt-br.default.hello_world', 'Olá mundo br');
+
+        $this->redis->set('app.es.default.hello_world', 'Hola mondo');
+        $this->redis->set('app.es-py.default.hello_world', 'Hola mondo py');
+
+
+        $this->assertEquals('Hello World', trans('hello_world'));
+        $this->assertEquals('Hello World us', trans('hello_world', [], null, 'en-us'));
+        $this->assertEquals('Olá mundo', trans('hello_world', [], null, 'pt'));
+        $this->assertEquals('Olá mundo br', trans('hello_world', [], null, 'pt-br'));
+        $this->assertEquals('Hola mondo', trans('hello_world', [], null, 'es'));
+        $this->assertEquals('Hola mondo py', trans('hello_world', [], null, 'es-py'));
+
+
+        $this->redis->del('app.pt-br.default.hello_world');
+        $this->assertEquals('Olá mundo', trans('hello_world', [], null, 'pt-br'));
+        $this->redis->del('app.es-py.default.hello_world');
+        $this->assertEquals('Hola mondo', trans('hello_world', [], null, 'es-py'));
+    }
+
     public function testReplacements() {
         $this->redis->set('app.en.default.hello_world', 'Hello World, :name');
         $this->redis->set('app.pt.default.hello_world', 'Olá Mundo, :name');
@@ -94,7 +119,6 @@ class AllTest extends TestCase
         $this->assertEquals('default.hello_world', trans('hello_world'));
         $this->assertEquals('default.hello_world', trans('hello_world', [], null, 'pt'));
         $this->assertNotEquals('default.hello_world', trans('hello_world', [], null, 'es'));
-
     }
 
     public function testDefaultOrigins() {
