@@ -3,6 +3,8 @@
 namespace brunojk\LaravelOriginRedisTranslation;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Translation\FileLoader;
+use Illuminate\Translation\Translator;
 
 class RedisTranslationServiceProvider extends ServiceProvider
 {
@@ -19,7 +21,10 @@ class RedisTranslationServiceProvider extends ServiceProvider
      * @return void
      */
     public function register() {
+        $this->registerLoader();
+
         $this->app->singleton('translator', function ($app) {
+            $loader = $app['translation.loader'];
 
             // When registering the translator component, we'll need to set the default
             // locale as well as the fallback locale. So, we'll grab the application
@@ -29,10 +34,24 @@ class RedisTranslationServiceProvider extends ServiceProvider
 
             $rediscon = isset($app['config']['database.redis']['translations']);
 
-            $trans = new RedisTranslator($locale, $rediscon ? 'translations' : null);
+            $filetrans = new Translator($loader, $locale);
+
+            $trans = new RedisTranslator($filetrans, $locale, $rediscon ? 'translations' : null);
             $trans->setFallback($fblocale);
 
             return $trans;
+        });
+    }
+
+    /**
+     * Register the translation line loader.
+     *
+     * @return void
+     */
+    protected function registerLoader()
+    {
+        $this->app->singleton('translation.loader', function ($app) {
+            return new FileLoader($app['files'], $app['path.lang']);
         });
     }
 
@@ -42,6 +61,6 @@ class RedisTranslationServiceProvider extends ServiceProvider
      * @return array
      */
     public function provides() {
-        return ['translator'];
+        return ['translator', 'translation.loader'];
     }
 }

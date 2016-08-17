@@ -3,11 +3,13 @@
 namespace brunojk\LaravelOriginRedisTranslation;
 
 use Illuminate\Redis\Database;
+use Illuminate\Support\NamespacedItemResolver;
 use Illuminate\Support\Str;
+use Illuminate\Translation\Translator;
 use Symfony\Component\Translation\MessageSelector;
 use Symfony\Component\Translation\TranslatorInterface;
 
-class RedisTranslator implements TranslatorInterface
+class RedisTranslator extends NamespacedItemResolver implements TranslatorInterface
 {
     /**
      * The redis connection name.
@@ -45,13 +47,22 @@ class RedisTranslator implements TranslatorInterface
     protected $selector;
 
     /**
+     * The message selector.
+     *
+     * @var Translator
+     */
+    protected $filetranslator;
+
+    /**
      * Create a new translator instance.
      *
+     * @param Translator $filetranslator
      * @param  string $locale
      * @param string $rediscon
      */
-    public function __construct($locale, $rediscon = 'default')
+    public function __construct(Translator $filetranslator, $locale, $rediscon = 'default')
     {
+        $this->filetranslator = $filetranslator;
         $this->locale = $locale;
         $this->rediscon = $rediscon;
     }
@@ -73,10 +84,14 @@ class RedisTranslator implements TranslatorInterface
     }
 
     protected function resolveKeys(&$id, &$context = null, &$lang = null) {
-        $keys = explode('.', $id);
-        $id = array_pop($keys); //last element, the key
-        $context = count($keys) ? array_pop($keys) : $context;
-        $lang = count($keys) ? array_pop($keys) : $this->resolveLang($lang);
+        if( strpos($id, '.') === false )
+            $id = $context . '.' . $id;
+
+        list($namespace, $group, $item) = $this->parseKey($id);
+
+        $id = $item; //last element, the key
+        $context = $group ?: $context;
+        $lang = $this->resolveLang($lang);
 
         $keyapp = "app.$lang.$context.$id";
         $keyplt = "plt.$lang.$context.$id";
@@ -84,7 +99,7 @@ class RedisTranslator implements TranslatorInterface
         return [$keyapp, $keyplt];
     }
 
-    public function get($id, array $parameters = [], $context = null, $lang = null, $fallback = true) {
+    public function get($id, array $parameters = [], $context = 'default', $lang = null, $fallback = true) {
         $keys = $this->resolveKeys($id, $context, $lang);
         $res = null;
 
@@ -153,6 +168,9 @@ class RedisTranslator implements TranslatorInterface
      * @return string|array|null
      */
     public function trans($id, array $parameters = [], $domain = 'messages', $locale = null) {
+        if(starts_with($id, 'validation'))
+            return $this->filetranslator->trans($id, $parameters, $locale);
+
         return $this->get($id, $parameters, !$domain || $domain == 'messages' ? 'default' : $domain, $locale);
     }
 
@@ -168,7 +186,27 @@ class RedisTranslator implements TranslatorInterface
      */
     public function transChoice($id, $number, array $parameters = [], $domain = 'messages', $locale = null)
     {
+        if(starts_with('validation', $id))
+            return $this->filetranslator->transChoice($id, $parameters, $locale);
+
         return $this->choice($id, $number, $parameters, !$domain || $domain == 'messages' ? 'default' : $domain, $locale);
+    }
+
+    /**
+     * Parse a key into namespace, group, and item.
+     *
+     * @param  string  $key
+     * @return array
+     */
+    public function parseKey($key)
+    {
+        $segments = parent::parseKey($key);
+
+        if (is_null($segments[0])) {
+            $segments[0] = '*';
+        }
+
+        return $segments;
     }
 
 
@@ -215,6 +253,7 @@ class RedisTranslator implements TranslatorInterface
     public function setLocale($locale)
     {
         $this->locale = $locale;
+        $this->filetranslator->setLocale($locale);
     }
 
     /**
@@ -236,5 +275,6 @@ class RedisTranslator implements TranslatorInterface
     public function setFallback($fallback)
     {
         $this->fallback = $fallback;
+        $this->filetranslator->setFallback($fallback);
     }
 }

@@ -11,6 +11,11 @@ class AllTest extends TestCase
         $this->assertNotNull($this->redis);
     }
 
+    public function testValidationsDefault() {
+        $this->assertEquals('validation.custom.email.required', trans('validation.custom.email.required'));
+        $this->assertEquals('The :attribute field is required.', trans('validation.required'));
+    }
+
     public function testCountryLocale() {
         $this->redis->set('app.en.default.hello_world', 'Hello World');
         $this->redis->set('app.en-us.default.hello_world', 'Hello World us');
