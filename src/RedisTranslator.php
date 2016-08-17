@@ -83,7 +83,7 @@ class RedisTranslator extends NamespacedItemResolver implements TranslatorInterf
         return $lang ?: $this->locale;
     }
 
-    protected function resolveKeys(&$id, &$context = null, &$lang = null) {
+    public function resolveKeys(&$id, &$context = null, &$lang = null) {
         if( strpos($id, '.') === false )
             $id = $context . '.' . $id;
 
