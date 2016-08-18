@@ -100,6 +100,7 @@ class RedisTranslator extends NamespacedItemResolver implements TranslatorInterf
     }
 
     public function get($id, array $parameters = [], $context = 'default', $lang = null, $fallback = true) {
+        $oldkey = $id;
         $keys = $this->resolveKeys($id, $context, $lang);
         $res = null;
 
@@ -117,7 +118,7 @@ class RedisTranslator extends NamespacedItemResolver implements TranslatorInterf
 
         $res = !empty($res) ?
             $this->makeReplacements($res, $parameters) :
-            "$context.$id";
+            $oldkey;
 
         return $res;
     }
