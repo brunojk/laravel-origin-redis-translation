@@ -69,7 +69,7 @@ class AllTest extends TestCase
 
 
         $this->redis->del('app.en.default.hello_world');
-        $this->assertEquals('default.hello_world', trans_choice('hello_world', 2, [], null, 'es'));
+        $this->assertEquals('hello_world', trans_choice('hello_world', 2, [], null, 'es'));
 
 
         $this->redis->set('app.en.default.hello_world', 'Hello World');
@@ -81,13 +81,13 @@ class AllTest extends TestCase
         $this->redis->del('app.en.default.hello_world');
         $this->redis->set('app.pt.default.hello_world', 'Olá mundo');
 
-        $this->assertEquals('default.hello_world', trans_choice('hello_world', 0));
-        $this->assertEquals('default.hello_world', trans_choice('hello_world', 1));
-        $this->assertEquals('default.hello_world', trans_choice('hello_world', 5));
+        $this->assertEquals('hello_world', trans_choice('hello_world', 0));
+        $this->assertEquals('hello_world', trans_choice('hello_world', 1));
+        $this->assertEquals('hello_world', trans_choice('hello_world', 5));
 
-        $this->assertEquals('default.hello_world', trans_choice('hello_world', 0, [], null, 'es'));
-        $this->assertEquals('default.hello_world', trans_choice('hello_world', 1, [], null, 'es'));
-        $this->assertEquals('default.hello_world', trans_choice('hello_world', 5, [], null, 'es'));
+        $this->assertEquals('hello_world', trans_choice('hello_world', 0, [], null, 'es'));
+        $this->assertEquals('hello_world', trans_choice('hello_world', 1, [], null, 'es'));
+        $this->assertEquals('hello_world', trans_choice('hello_world', 5, [], null, 'es'));
 
         $this->assertEquals('Olá mundo', trans_choice('hello_world', 0, [], null, 'pt'));
         $this->assertEquals('Olá mundo', trans_choice('hello_world', 1, [], null, 'pt'));
@@ -121,9 +121,9 @@ class AllTest extends TestCase
         $this->assertEquals('Hello World', trans('hello_world', [], null, 'pt'));
 
         $this->redis->del('app.en.default.hello_world');
-        $this->assertEquals('default.hello_world', trans('hello_world'));
-        $this->assertEquals('default.hello_world', trans('hello_world', [], null, 'pt'));
-        $this->assertNotEquals('default.hello_world', trans('hello_world', [], null, 'es'));
+        $this->assertEquals('hello_world', trans('hello_world'));
+        $this->assertEquals('hello_world', trans('hello_world', [], null, 'pt'));
+        $this->assertNotEquals('hello_world', trans('hello_world', [], null, 'es'));
     }
 
     public function testDefaultOrigins() {
@@ -152,7 +152,7 @@ class AllTest extends TestCase
 
         //delete
         $this->redis->del('app.en.default.hello_world');
-        $this->assertEquals('default.hello_world', trans('hello_world'));
+        $this->assertEquals('hello_world', trans('hello_world'));
         $this->assertEquals('default.hello_world', trans('default.hello_world'));
         $this->assertEquals('default.hello_world', trans('default.hello_world', [], 'outcome'));
         $this->assertNotEquals('default.hello_world', trans('hello_world', [], 'outcome'));

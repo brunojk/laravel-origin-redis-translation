@@ -90,7 +90,7 @@ class RedisTranslator extends NamespacedItemResolver implements TranslatorInterf
         list($namespace, $group, $item) = $this->parseKey($id);
 
         $id = $item; //last element, the key
-        $context = $context ?: $group;
+        $context = $group;
         $lang = $this->resolveLang($lang);
 
         $keyapp = "app.$lang.$context.$id";
