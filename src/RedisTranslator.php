@@ -11,6 +11,8 @@ use Symfony\Component\Translation\TranslatorInterface;
 
 class RedisTranslator extends NamespacedItemResolver implements TranslatorInterface
 {
+    use TranslatorResolveKeys;
+
     /**
      * The redis connection name.
      *
@@ -81,22 +83,6 @@ class RedisTranslator extends NamespacedItemResolver implements TranslatorInterf
      */
     protected function resolveLang($lang = null) {
         return $lang ?: $this->locale;
-    }
-
-    public function resolveKeys(&$id, &$context = null, &$lang = null) {
-        if( strpos($id, '.') === false )
-            $id = $context . '.' . $id;
-
-        list($namespace, $group, $item) = $this->parseKey($id);
-
-        $id = $item; //last element, the key
-        $context = $group;
-        $lang = $this->resolveLang($lang);
-
-        $keyapp = "app.$lang.$context.$id";
-        $keyplt = "plt.$lang.$context.$id";
-
-        return [$keyapp, $keyplt];
     }
 
     public function get($id, array $parameters = [], $context = 'default', $lang = null, $fallback = true) {
