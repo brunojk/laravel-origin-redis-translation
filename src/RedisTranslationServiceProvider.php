@@ -31,6 +31,7 @@ class RedisTranslationServiceProvider extends ServiceProvider
             // configuration so we can easily get both of these values from there.
             $locale = $app['config']['app.locale'];
             $fblocale = $app['config']['app.fallback_locale'];
+            $cached = $app['config']['app.cached_translations'];
 
             $rediscon = isset($app['config']['database.redis']['translations']);
 
@@ -38,6 +39,7 @@ class RedisTranslationServiceProvider extends ServiceProvider
 
             $trans = new RedisTranslator($filetrans, $locale, $rediscon ? 'translations' : null);
             $trans->setFallback($fblocale);
+            $trans->useCachedTranslations($cached);
 
             return $trans;
         });

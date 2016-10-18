@@ -3,6 +3,7 @@
 namespace brunojk\LaravelOriginRedisTranslation;
 
 use Illuminate\Redis\Database;
+use Illuminate\Support\Collection;
 use Illuminate\Support\NamespacedItemResolver;
 use Illuminate\Support\Str;
 use Illuminate\Translation\Translator;
@@ -54,6 +55,15 @@ class RedisTranslator extends NamespacedItemResolver implements TranslatorInterf
     protected $filetranslator;
 
     /**
+     * Cached keys translated.
+     *
+     * @var Collection
+     */
+    protected $cached;
+
+    protected $use_cache = false;
+
+    /**
      * Create a new translator instance.
      *
      * @param Translator $filetranslator
@@ -65,6 +75,7 @@ class RedisTranslator extends NamespacedItemResolver implements TranslatorInterf
         $this->filetranslator = $filetranslator;
         $this->locale = $locale;
         $this->rediscon = $rediscon;
+        $this->cached = new Collection();
     }
 
     /**
@@ -92,32 +103,49 @@ class RedisTranslator extends NamespacedItemResolver implements TranslatorInterf
         $id = $item; //last element, the key
         $lang = $this->resolveLang($lang);
 
-        $keyapp = "app.$lang.$context.$id";
-        $keyplt = "plt.$lang.$context.$id";
+        $key_app = "app.$lang.$context.$id";
+        $key_plt = "plt.$lang.$context.$id";
 
-        return [$keyapp, $keyplt];
+        return [$key_app, $key_plt];
+    }
+
+    private function getCached($key, $default = null) {
+        if( $this->use_cache )
+            return $this->cached->get($key, $default);
+
+        return null;
+    }
+
+    private function putInCache($key, $value) {
+        if( $this->use_cache )
+            return $this->cached->put($key, $value);
     }
 
     public function get($id, array $parameters = [], $context = 'default', $lang = null, $fallback = true) {
-        $oldkey = $id;
+        $old_key = $id;
         $keys = $this->resolveKeys($id, $context, $lang);
-        $res = null;
+        $res = $this->getCached($keys[0], $this->cached->get($keys[1]));
 
-        foreach( $keys as $key ) {
-            $res = $this->redis()->get($key);
-            if( !empty($res) ) break;
+        if( empty($res) ) {
+            foreach( $keys as $key ) {
+                $res = $this->redis()->get($key);
+                if( !empty($res) ) break;
+            }
+
+            if( empty($res) && $fallback && $lang != $this->fallback ) {
+                if( str_contains($lang, '-') )
+                    return $this->get($old_key, $parameters, $context, explode('-', $lang)[0]);
+
+                return $this->get($old_key, $parameters, $context, $this->fallback);
+            }
         }
 
-        if( $fallback && empty($res) && $lang != $this->fallback ) {
-            if( str_contains($lang, '-') )
-                return $this->get($id, $parameters, $context, explode('-', $lang)[0]);
-
-            return $this->get($id, $parameters, $context, $this->fallback);
-        }
+        $this->putInCache($keys[0], $res);
+        $this->putInCache($keys[1], $res);
 
         $res = !empty($res) ?
             $this->makeReplacements($res, $parameters) :
-            $oldkey;
+            $old_key;
 
         return $res;
     }
@@ -276,5 +304,10 @@ class RedisTranslator extends NamespacedItemResolver implements TranslatorInterf
     {
         $this->fallback = $fallback;
         $this->filetranslator->setFallback($fallback);
+    }
+
+    public function useCachedTranslations($cached)
+    {
+        $this->use_cache = $cached;
     }
 }
